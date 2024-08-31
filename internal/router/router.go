@@ -52,6 +52,7 @@ func globalTimeoutMiddleware(timeout time.Duration) func(http.Handler) http.Hand
 			case <-ctx.Done():
 				// Timeout exceeded
 				http.Error(w, ctx.Err().Error(), http.StatusGatewayTimeout)
+				return
 			}
 		})
 	}

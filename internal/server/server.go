@@ -43,7 +43,7 @@ func (s *Server) Run() error {
 	}
 
 	go func() {
-		s.logger.Info().Msg("server listening on port 8888")
+		s.logger.Info().Msg("server listening on " + s.config.Address)
 		serverErrors <- api.ListenAndServe()
 	}()
 
