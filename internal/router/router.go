@@ -8,12 +8,17 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/rs/zerolog"
-	"github.com/tomkaith13/dist-kv-store/internal/service"
 )
 
 type Config struct {
 	RequestTimeout time.Duration `envconfig:"REQUEST_TIMEOUT" default:"30s"`
 }
+
+const (
+	GET    = "GET"
+	POST   = "POST"
+	DELETE = "DEL"
+)
 
 type Router struct {
 	config    Config
@@ -28,6 +33,7 @@ func New(config Config, logger zerolog.Logger) *Router {
 		logger:    logger,
 	}
 	r.setup()
+	r.PrintConfigs()
 	return r
 }
 
@@ -35,20 +41,31 @@ func (r *Router) setup() {
 	r.chiRouter.Use(globalTimeoutMiddleware(r.config.RequestTimeout, r.logger))
 	r.chiRouter.Use(middleware.Logger)
 	r.chiRouter.Use(middleware.Recoverer)
-
-	r.logger.Info().Msg("Registering routes..")
-	// handler registration to the service
-	r.chiRouter.Get("/hello", service.HelloHandler)
-
-	r.logger.Info().Msg("Routes registered!!")
 }
 
-func (r *Router) AddHandler(route string, handlerFunc http.HandlerFunc) {
-	r.chiRouter.Get(route, handlerFunc)
+func (r *Router) AddHandler(method string, route string, handlerFunc http.HandlerFunc) {
+	r.logger.Info().Msgf("Registering Method: %s Route: %s", method, route)
+	switch method {
+	case GET:
+		r.chiRouter.Get(route, handlerFunc)
+	case POST:
+		r.chiRouter.Post(route, handlerFunc)
+	case DELETE:
+		r.chiRouter.Delete(route, handlerFunc)
+	default:
+		// lets keep default also as a GET registration
+		r.chiRouter.Get(route, handlerFunc)
+	}
 }
 
 func (r *Router) GetRouter() *chi.Mux {
 	return r.chiRouter
+}
+
+func (r *Router) PrintConfigs() {
+	r.logger.Info().Msg("--- Router Config ---")
+	r.logger.Info().Msgf("%+v", r.config)
+	r.logger.Info().Msg("--- Router Config ---")
 }
 
 func globalTimeoutMiddleware(timeout time.Duration, logger zerolog.Logger) func(http.Handler) http.Handler {

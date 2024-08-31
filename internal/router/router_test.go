@@ -21,7 +21,7 @@ func TestRouter(t *testing.T) {
 		Timestamp().
 		Logger()
 	router := New(config, zlogger)
-	router.AddHandler("/hello-long", service.HelloHandlerLong)
+	router.AddHandler(GET, "/hello-long", service.HelloHandlerLong)
 	// Create a test server using httptest
 	ts := httptest.NewServer(router.GetRouter())
 	defer ts.Close()

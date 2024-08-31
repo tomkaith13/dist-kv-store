@@ -20,16 +20,24 @@ type Server struct {
 }
 
 type Config struct {
-	Address         string        `envconfig:"ADDRESS" default:"0.0.0.0:8000"`
+	Address         string        `envconfig:"ADDRESS"`
 	ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT" default:"5s"`
 }
 
 func New(logger zerolog.Logger, router *chi.Mux, config Config) *Server {
-	return &Server{
+	s := &Server{
 		logger: logger,
 		router: router,
 		config: config,
 	}
+	s.PrintConfigs()
+	return s
+}
+
+func (s *Server) PrintConfigs() {
+	s.logger.Info().Msg("--- Server Config ---")
+	s.logger.Info().Msgf("%+v", s.config)
+	s.logger.Info().Msg("--- Server Config ---")
 }
 
 func (s *Server) Run() error {
