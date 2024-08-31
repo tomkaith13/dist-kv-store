@@ -3,6 +3,7 @@ package config
 import (
 	_ "github.com/joho/godotenv/autoload" // Autoload env vars from a .env file.
 	"github.com/kelseyhightower/envconfig"
+	"github.com/tomkaith13/dist-kv-store/internal/router"
 	"github.com/tomkaith13/dist-kv-store/internal/server"
 )
 
@@ -10,6 +11,7 @@ import (
 // parameters that this service uses.
 type Config struct {
 	Server server.Config `envconfig:"SERVER"`
+	Router router.Config `envconfig:"ROUTER"`
 }
 
 // LoadFromEnv will load the env vars from the OS.

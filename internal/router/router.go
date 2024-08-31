@@ -10,22 +10,35 @@ import (
 	"github.com/tomkaith13/dist-kv-store/internal/service"
 )
 
-const (
-	// Global level timeout per request
-	RequestTimeout time.Duration = 30 * time.Second
-)
+type Config struct {
+	RequestTimeout time.Duration `envconfig:"REQUEST_TIMEOUT" default:"30s"`
+}
 
-func New() *chi.Mux {
-	r := chi.NewMux()
+type Router struct {
+	config    Config
+	chiRouter *chi.Mux
+}
 
-	r.Use(globalTimeoutMiddleware(RequestTimeout))
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+func New(config Config) *Router {
+	r := &Router{
+		config:    config,
+		chiRouter: chi.NewRouter(),
+	}
+	r.setup()
+	return r
+}
+
+func (r *Router) setup() {
+	r.chiRouter.Use(globalTimeoutMiddleware(r.config.RequestTimeout))
+	r.chiRouter.Use(middleware.Logger)
+	r.chiRouter.Use(middleware.Recoverer)
 
 	// handler registration to the service
-	r.Get("/hello", service.HelloHandler)
+	r.chiRouter.Get("/hello", service.HelloHandler)
+}
 
-	return r
+func (r *Router) GetRouter() *chi.Mux {
+	return r.chiRouter
 }
 
 func globalTimeoutMiddleware(timeout time.Duration) func(http.Handler) http.Handler {
