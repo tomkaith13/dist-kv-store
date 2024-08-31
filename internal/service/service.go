@@ -14,8 +14,9 @@ type DKVStore interface {
 	Delete(key string) error
 }
 
-// func New(logger zerolog.Logger) {
-// 	service := &DKVService{
-// 		logger: logger,
-// 	}
-// }
+func New(logger zerolog.Logger) *DKVService {
+	service := &DKVService{
+		logger: logger,
+	}
+	return service
+}

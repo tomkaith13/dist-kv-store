@@ -22,7 +22,7 @@ func main() {
 		zlogger.Fatal().Err(err).Msg("failed to load env vars")
 	}
 
-	router := router.New(config.Router)
+	router := router.New(config.Router, zlogger)
 
 	server := server.New(zlogger, router.GetRouter(), config.Server)
 	server.Run()
