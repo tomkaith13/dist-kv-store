@@ -28,8 +28,8 @@ type Server struct {
 }
 type DKVStore interface {
 	Get(key string) (string, error)
-	Set(key string, val string) string
-	Delete(key string) string
+	Set(key string, val string) (string, error)
+	Delete(key string) (string, error)
 }
 type Config struct {
 	Address         string        `envconfig:"ADDRESS"`
@@ -108,8 +108,4 @@ func (s *Server) Run() error {
 
 func (s *Server) GetRouter() http.Handler {
 	return s.router
-}
-
-func (s *Server) PrintServer() {
-	s.logger.Info().Msg("Server is printed!!!!")
 }

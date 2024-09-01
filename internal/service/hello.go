@@ -14,7 +14,7 @@ func HelloHandler(s *server.Server, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte("world!"))
-	s.PrintServer()
+	// s.PrintServer()
 	w.WriteHeader(http.StatusOK)
 }
 

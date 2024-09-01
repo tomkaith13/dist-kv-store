@@ -31,12 +31,12 @@ func (s *DKVService) Get(key string) (string, error) {
 	return "", nil
 }
 
-func (s *DKVService) Set(key, val string) string {
-	return ""
+func (s *DKVService) Set(key, val string) (string, error) {
+	return "", nil
 }
 
-func (s *DKVService) Delete(key string) string {
-	return ""
+func (s *DKVService) Delete(key string) (string, error) {
+	return "", nil
 }
 
 func (s *DKVService) PrintConfigs() {
