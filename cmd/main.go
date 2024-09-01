@@ -31,7 +31,6 @@ func main() {
 	// test route - for tests and checking if the setup works
 	httpServer := server.New(zlogger, r.GetRouter(), config.Server, kv_service)
 	httpServer.AddHandler(server.GET, "/hello", service.HelloHandler)
-	// httpServer.AddHandler(server.GET, "/hello-long", service.HelloHandlerLong)
 
 	// GET
 	// server.AddHandler(router.GET, "/key", service.GetHandler)
