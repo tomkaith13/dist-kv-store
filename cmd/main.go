@@ -22,7 +22,7 @@ func main() {
 	// read configs using https://github.com/kelseyhightower/envconfig
 	config, err := config.LoadFromEnv()
 	if err != nil {
-		zlogger.Fatal().Err(err).Msg("failed to load env vars")
+		zlogger.Fatal().Err(err).Msgf("failed to load env vars. Error:%q", err)
 	}
 
 	// init service, router and finally init the server itself.
