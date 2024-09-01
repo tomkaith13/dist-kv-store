@@ -14,12 +14,6 @@ type Config struct {
 	RequestTimeout time.Duration `envconfig:"REQUEST_TIMEOUT" default:"30s"`
 }
 
-const (
-	GET    = "GET"
-	POST   = "POST"
-	DELETE = "DEL"
-)
-
 type Router struct {
 	config    Config
 	chiRouter *chi.Mux
@@ -32,8 +26,8 @@ func New(config Config, logger zerolog.Logger) *Router {
 		chiRouter: chi.NewRouter(),
 		logger:    logger,
 	}
-	r.setup()
 	r.PrintConfigs()
+	r.setup()
 	return r
 }
 
@@ -41,21 +35,6 @@ func (r *Router) setup() {
 	r.chiRouter.Use(globalTimeoutMiddleware(r.config.RequestTimeout, r.logger))
 	r.chiRouter.Use(middleware.Logger)
 	r.chiRouter.Use(middleware.Recoverer)
-}
-
-func (r *Router) AddHandler(method string, route string, handlerFunc http.HandlerFunc) {
-	r.logger.Info().Msgf("Registering Method: %s Route: %s", method, route)
-	switch method {
-	case GET:
-		r.chiRouter.Get(route, handlerFunc)
-	case POST:
-		r.chiRouter.Post(route, handlerFunc)
-	case DELETE:
-		r.chiRouter.Delete(route, handlerFunc)
-	default:
-		// lets keep default also as a GET registration
-		r.chiRouter.Get(route, handlerFunc)
-	}
 }
 
 func (r *Router) GetRouter() *chi.Mux {

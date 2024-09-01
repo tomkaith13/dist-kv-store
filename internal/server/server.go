@@ -13,26 +13,61 @@ import (
 	"github.com/rs/zerolog"
 )
 
+const (
+	GET    = "GET"
+	POST   = "POST"
+	DELETE = "DEL"
+)
+
 type Server struct {
 	logger zerolog.Logger
 	router *chi.Mux
 	config Config
-}
 
+	store DKVStore
+}
+type DKVStore interface {
+	Get(key string) (string, error)
+	Set(key string, val string) string
+	Delete(key string) string
+}
 type Config struct {
 	Address         string        `envconfig:"ADDRESS"`
 	ShutdownTimeout time.Duration `envconfig:"SHUTDOWN_TIMEOUT" default:"5s"`
 }
 
-func New(logger zerolog.Logger, router *chi.Mux, config Config) *Server {
+func New(logger zerolog.Logger, router *chi.Mux, config Config, store DKVStore) *Server {
 	s := &Server{
 		logger: logger,
 		router: router,
 		config: config,
+		store:  store,
 	}
 	s.PrintConfigs()
 	return s
 }
+
+func (s *Server) AddHandler(method string, route string, handlerFunc func(s *Server, w http.ResponseWriter, r *http.Request)) {
+	s.logger.Info().Msgf("Registering Method: %s Route: %s", method, route)
+	wrappedHandler := func(w http.ResponseWriter, r *http.Request) {
+		handlerFunc(s, w, r)
+	}
+	switch method {
+	case GET:
+		s.router.Get(route, wrappedHandler)
+	case POST:
+		s.router.Post(route, wrappedHandler)
+	case DELETE:
+		s.router.Delete(route, wrappedHandler)
+	default:
+		// lets keep default also as a GET registration
+		s.router.Get(route, wrappedHandler)
+	}
+}
+
+// func (s *Server) ServeHTTP(w http.ResponseWriter r *http.Request) {
+
+// }
 
 func (s *Server) PrintConfigs() {
 	s.logger.Info().Msg("--- Server Config ---")
@@ -69,4 +104,12 @@ func (s *Server) Run() error {
 		}
 	}
 	return nil
+}
+
+func (s *Server) GetRouter() http.Handler {
+	return s.router
+}
+
+func (s *Server) PrintServer() {
+	s.logger.Info().Msg("Server is printed!!!!")
 }

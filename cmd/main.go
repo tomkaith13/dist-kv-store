@@ -25,15 +25,17 @@ func main() {
 		zlogger.Fatal().Err(err).Msg("failed to load env vars")
 	}
 
+	kv_service := service.New(zlogger)
 	r := router.New(config.Router, zlogger)
 	// handler registration to the service
 	// test route - for tests and checking if the setup works
-	r.AddHandler(router.GET, "/hello", service.HelloHandler)
+	httpServer := server.New(zlogger, r.GetRouter(), config.Server, kv_service)
+	httpServer.AddHandler(server.GET, "/hello", service.HelloHandler)
+	// httpServer.AddHandler(server.GET, "/hello-long", service.HelloHandlerLong)
 
 	// GET
-	r.AddHandler(router.GET, "/key", service.GetHandler)
+	// server.AddHandler(router.GET, "/key", service.GetHandler)
 
-	server := server.New(zlogger, r.GetRouter(), config.Server)
-	server.Run()
+	httpServer.Run()
 
 }
