@@ -31,12 +31,13 @@ func main() {
 	httpServer := server.New(zlogger, r.GetRouter(), config.Server, kv_service)
 
 	// handler registration to the service
+	// test handler
 	httpServer.AddHandler(server.GET, "/hello", service.HelloHandler)
+
+	// key handlers
 	httpServer.AddHandler(server.GET, "/key/{id}", service.GetHandler)
 	httpServer.AddHandler(server.POST, "/key", service.SetHandler)
-
-	// GET
-	// server.AddHandler(router.GET, "/key", service.GetHandler)
+	httpServer.AddHandler(server.DELETE, "/key/{id}", service.DelHandler)
 
 	httpServer.Run()
 
