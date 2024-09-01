@@ -29,7 +29,7 @@ func GetHandler(s *server.Server, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Dummy set
-	dkvService.Set("asd", "def")
+	// dkvService.Set("asd", "def")
 
 	// TODO: call store.Get()
 	val, err := dkvService.Get(key)

@@ -15,8 +15,9 @@ type DKVService struct {
 }
 
 type Config struct {
-	KeyMaxLen int `envconfig:"KEY_MAX_LEN" default:"100"`
-	ValMaxLen int `envconfig:"VAL_MAX_LEN" default:"200"`
+	KeyMaxLen  int `envconfig:"KEY_MAX_LEN" default:"100"`
+	ValMaxLen  int `envconfig:"VAL_MAX_LEN" default:"200"`
+	MaxMapSize int `envconfig:"MAX_MAP_SIZE" default:"1000"`
 }
 
 func New(logger zerolog.Logger, config Config) *DKVService {
@@ -35,7 +36,7 @@ func (s *DKVService) Get(key string) (string, error) {
 	defer s.mu.Unlock()
 
 	if _, ok := s.kvmap[key]; !ok {
-		return "", errors.New("Key not found")
+		return "", errors.New("key not found")
 	}
 
 	return s.kvmap[key], nil
@@ -46,7 +47,7 @@ func (s *DKVService) Set(key, val string) (string, error) {
 	defer s.mu.Unlock()
 
 	if _, ok := s.kvmap[key]; ok {
-		return "", errors.New("Key already exists")
+		return "", errors.New("key already exists")
 	}
 
 	s.kvmap[key] = val
@@ -59,7 +60,7 @@ func (s *DKVService) Delete(key string) (string, error) {
 	defer s.mu.Unlock()
 
 	if _, ok := s.kvmap[key]; !ok {
-		return "", errors.New("Key not found")
+		return "", errors.New("key not found")
 	}
 
 	delete(s.kvmap, key)
