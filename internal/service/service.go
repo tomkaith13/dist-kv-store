@@ -15,9 +15,11 @@ type DKVService struct {
 }
 
 type Config struct {
-	KeyMaxLen  int `envconfig:"KEY_MAX_LEN" default:"100"`
-	ValMaxLen  int `envconfig:"VAL_MAX_LEN" default:"200"`
-	MaxMapSize int `envconfig:"MAX_MAP_SIZE" default:"1000"`
+	KeyMaxLen    int    `envconfig:"KEY_MAX_LEN" default:"100"`
+	ValMaxLen    int    `envconfig:"VAL_MAX_LEN" default:"200"`
+	MaxMapSize   int    `envconfig:"MAX_MAP_SIZE" default:"1000"`
+	RaftStoreDir string `envconfig:"RAFT_STORE_DIR" required:"true"`
+	RaftAddr     string `envconfig:"RAFT_ADDR" required:"true"`
 }
 
 func New(logger zerolog.Logger, config Config) *DKVService {
