@@ -27,13 +27,14 @@ func TestHelloHandler(t *testing.T) {
 		Address:         "9999",
 		ShutdownTimeout: time.Second * 5,
 	}
+	serviceConfig := Config{}
 	zlogger := zerolog.New(os.Stderr).
 		Level(zerolog.DebugLevel).
 		With().
 		Timestamp().
 		Logger()
 	router := router.New(config, zlogger)
-	kv_service := New(zlogger)
+	kv_service := New(zlogger, serviceConfig)
 	httpServer := server.New(zlogger, router.GetRouter(), sConfig, kv_service)
 
 	httpServer.AddHandler(server.GET, "/hello", HelloHandler)
@@ -65,13 +66,14 @@ func TestHelloLongHandler(t *testing.T) {
 		Address:         "9999",
 		ShutdownTimeout: time.Second * 5,
 	}
+	serviceConfig := Config{}
 	zlogger := zerolog.New(os.Stderr).
 		Level(zerolog.DebugLevel).
 		With().
 		Timestamp().
 		Logger()
 	router := router.New(config, zlogger)
-	kv_service := New(zlogger)
+	kv_service := New(zlogger, serviceConfig)
 	httpServer := server.New(zlogger, router.GetRouter(), sConfig, kv_service)
 
 	httpServer.AddHandler(server.GET, "/hello-long", HelloHandlerLong)

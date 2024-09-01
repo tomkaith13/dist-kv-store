@@ -26,7 +26,7 @@ func main() {
 	}
 
 	// init service, router and finally init the server itself.
-	kv_service := service.New(zlogger)
+	kv_service := service.New(zlogger, config.Service)
 	r := router.New(config.Router, zlogger)
 	httpServer := server.New(zlogger, r.GetRouter(), config.Server, kv_service)
 
