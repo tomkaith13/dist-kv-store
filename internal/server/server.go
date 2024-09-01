@@ -109,3 +109,7 @@ func (s *Server) Run() error {
 func (s *Server) GetRouter() http.Handler {
 	return s.router
 }
+
+func (s *Server) GetStore() DKVStore {
+	return s.store
+}

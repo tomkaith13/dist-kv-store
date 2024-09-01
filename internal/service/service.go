@@ -7,10 +7,10 @@ import (
 )
 
 type DKVService struct {
-	logger zerolog.Logger
-	config Config
-	mu     sync.Mutex
-	kvmap  map[string]string
+	logger        zerolog.Logger
+	ServiceConfig Config
+	mu            sync.Mutex
+	kvmap         map[string]string
 }
 
 type Config struct {
@@ -20,8 +20,8 @@ type Config struct {
 
 func New(logger zerolog.Logger, config Config) *DKVService {
 	service := &DKVService{
-		logger: logger,
-		config: config,
+		logger:        logger,
+		ServiceConfig: config,
 	}
 	service.PrintConfigs()
 	return service
@@ -41,7 +41,7 @@ func (s *DKVService) Delete(key string) (string, error) {
 
 func (s *DKVService) PrintConfigs() {
 	s.logger.Info().Msg("--- KVService Config ---")
-	s.logger.Info().Msgf("%+v", s.config)
+	s.logger.Info().Msgf("%+v", s.ServiceConfig)
 	s.logger.Info().Msg("--- KVService Config ---")
 
 }
