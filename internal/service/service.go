@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/rs/zerolog"
@@ -28,15 +29,39 @@ func New(logger zerolog.Logger, config Config) *DKVService {
 }
 
 func (s *DKVService) Get(key string) (string, error) {
-	return "", nil
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, ok := s.kvmap[key]; !ok {
+		return "", errors.New("Key not found")
+	}
+
+	return s.kvmap[key], nil
 }
 
 func (s *DKVService) Set(key, val string) (string, error) {
-	return "", nil
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, ok := s.kvmap[key]; ok {
+		return "", errors.New("Key already exists")
+	}
+
+	s.kvmap[key] = val
+	return val, nil
+
 }
 
 func (s *DKVService) Delete(key string) (string, error) {
-	return "", nil
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, ok := s.kvmap[key]; !ok {
+		return "", errors.New("Key not found")
+	}
+
+	delete(s.kvmap, key)
+	return key, nil
 }
 
 func (s *DKVService) PrintConfigs() {
