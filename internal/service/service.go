@@ -20,6 +20,9 @@ type Config struct {
 	MaxMapSize   int    `envconfig:"MAX_MAP_SIZE" default:"1000"`
 	RaftStoreDir string `envconfig:"RAFT_STORE_DIR" required:"true"`
 	RaftAddr     string `envconfig:"RAFT_ADDR" required:"true"`
+	RaftLeader   bool   `envconfig:"RAFT_LEADER" required:"true"`
+	RaftJoinAddr string `envconfig:"RAFT_JOIN_ADDR"`
+	RaftNodeID   string `envconfig:"RAFT_NODE_ID" required:"true"`
 }
 
 func New(logger zerolog.Logger, config Config) *DKVService {
