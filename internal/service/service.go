@@ -24,6 +24,8 @@ func New(logger zerolog.Logger, config Config) *DKVService {
 		logger:        logger,
 		ServiceConfig: config,
 	}
+
+	service.kvmap = make(map[string]string)
 	service.PrintConfigs()
 	return service
 }

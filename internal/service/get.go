@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -27,8 +28,16 @@ func GetHandler(s *server.Server, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: call store.Get()
+	// Dummy set
+	dkvService.Set("asd", "def")
 
-	w.Write([]byte("called GET !"))
+	// TODO: call store.Get()
+	val, err := dkvService.Get(key)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	resp := fmt.Sprintf("{ %q : %q }", key, val)
+	w.Write([]byte(resp))
 	w.WriteHeader(http.StatusOK)
 }
