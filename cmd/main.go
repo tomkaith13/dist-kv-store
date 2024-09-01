@@ -32,7 +32,7 @@ func main() {
 
 	// handler registration to the service
 	httpServer.AddHandler(server.GET, "/hello", service.HelloHandler)
-	httpServer.AddHandler(server.GET, "/GET", service.GetHandler)
+	httpServer.AddHandler(server.GET, "/GET/{id}", service.GetHandler)
 
 	// GET
 	// server.AddHandler(router.GET, "/key", service.GetHandler)
