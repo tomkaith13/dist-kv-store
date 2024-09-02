@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/hashicorp/raft"
 	"github.com/rs/zerolog"
 )
@@ -91,16 +92,23 @@ func (s *DKVService) initRaft() {
 		if bootStrapFut.Error() != nil {
 			s.logger.Fatal().Msg("Unable to bootstrap raft cluster with leader")
 		}
-		// leaderReadinessChecker := func() error {
+		leaderReadinessChecker := func() error {
 
-		// 	lAddr, lID := s.raft.LeaderWithID()
-		// 	if lAddr == "" || lID == "" {
-		// 		s.logger.Info().Msg("Raft Leader election in progress...")
-		// 		return errors.New("Leader not ready!")
-		// 	}
-		// 	s.logger.Info().Msg("Leader ready!!")
-		// 	return nil
-		// }
+			lAddr, lID := s.raft.LeaderWithID()
+			if lAddr == "" || lID == "" {
+				s.logger.Info().Msg("Raft Leader election in progress...")
+				return errors.New("Leader not ready!")
+			}
+			s.logger.Info().Msg("Leader ready!!")
+			return nil
+		}
+		exponentialBackoffEngine := backoff.NewExponentialBackOff()
+		exponentialBackoffEngine.MaxElapsedTime = 15 * time.Second
+
+		err := backoff.Retry(leaderReadinessChecker, exponentialBackoffEngine)
+		if err != nil {
+			s.logger.Fatal().Msg("Leader not promoted yet!")
+		}
 
 	} else {
 		// validate if we have a joinaddr

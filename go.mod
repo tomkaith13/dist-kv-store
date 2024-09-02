@@ -2,7 +2,10 @@ module github.com/tomkaith13/dist-kv-store
 
 go 1.23.0
 
-require github.com/rs/zerolog v1.33.0
+require (
+	github.com/cenkalti/backoff/v4 v4.3.0
+	github.com/rs/zerolog v1.33.0
+)
 
 require (
 	github.com/armon/go-metrics v0.4.1 // indirect
@@ -20,5 +23,5 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
 )

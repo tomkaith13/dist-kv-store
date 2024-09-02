@@ -27,7 +27,12 @@ func TestHelloHandler(t *testing.T) {
 		Address:         "9999",
 		ShutdownTimeout: time.Second * 5,
 	}
-	serviceConfig := Config{}
+	serviceConfig := Config{
+		RaftNodeID:   "1",
+		RaftAddr:     "localhost:23001",
+		RaftStoreDir: "./test-raft-dir",
+		RaftLeader:   true,
+	}
 	zlogger := zerolog.New(os.Stderr).
 		Level(zerolog.DebugLevel).
 		With().
@@ -66,7 +71,12 @@ func TestHelloLongHandler(t *testing.T) {
 		Address:         "9999",
 		ShutdownTimeout: time.Second * 5,
 	}
-	serviceConfig := Config{}
+	serviceConfig := Config{
+		RaftNodeID:   "1",
+		RaftAddr:     "localhost:24001",
+		RaftStoreDir: "./test-raft-dir",
+		RaftLeader:   true,
+	}
 	zlogger := zerolog.New(os.Stderr).
 		Level(zerolog.DebugLevel).
 		With().
