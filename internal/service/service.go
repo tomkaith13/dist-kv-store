@@ -92,6 +92,8 @@ func (s *DKVService) initRaft() {
 		if bootStrapFut.Error() != nil {
 			s.logger.Fatal().Msg("Unable to bootstrap raft cluster with leader")
 		}
+
+		// readiness checker for the leader.
 		leaderReadinessChecker := func() error {
 
 			lAddr, lID := s.raft.LeaderWithID()
@@ -102,6 +104,10 @@ func (s *DKVService) initRaft() {
 			s.logger.Info().Msg("Leader ready!!")
 			return nil
 		}
+
+		// We use exponential backoff - default configs save for MaxElapsedTime to
+		// wait for leader to get elected. We want this guardrail since followers can get
+		// triggered
 		exponentialBackoffEngine := backoff.NewExponentialBackOff()
 		exponentialBackoffEngine.MaxElapsedTime = 15 * time.Second
 
