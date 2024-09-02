@@ -50,6 +50,10 @@ func New(logger zerolog.Logger, config Config) *DKVService {
 }
 
 func (s *DKVService) initRaft() {
+	// create store dir
+	if err := os.MkdirAll(s.ServiceConfig.RaftStoreDir, 0700); err != nil {
+		s.logger.Fatal().Msg("Unable to create local raft store directory")
+	}
 	config := raft.DefaultConfig()
 	config.LocalID = raft.ServerID(s.ServiceConfig.RaftNodeID)
 
@@ -117,53 +121,8 @@ func (s *DKVService) initRaft() {
 		}
 
 	} else {
-		// validate if we have a joinaddr
-		if s.ServiceConfig.RaftJoinAddr == "" {
-			s.logger.Fatal().Msg("Followers need to provide joining addr of leader")
-		}
-
-		// init as follower
-		confFuture := s.raft.GetConfiguration()
-		err := confFuture.Error()
-		if err != nil {
-			s.logger.Fatal().Msgf("Unable to get raft conf as follower: %q", err)
-		}
-
-		raftServers := confFuture.Configuration().Servers
-		if len(raftServers) == 0 {
-			s.logger.Fatal().Msg("No servers found. please initalize the leader first!")
-		}
-
-		_, leaderId := s.raft.LeaderWithID()
-		if leaderId == "" {
-			s.logger.Fatal().Msg("No leader in raft cluster yet!")
-		}
-		for _, rServer := range raftServers {
-			if rServer.ID == raft.ServerID(s.ServiceConfig.RaftAddr) {
-				removeFuture := s.raft.RemoveServer(rServer.ID, 0, s.ServiceConfig.RaftTimeout)
-				err := removeFuture.Error()
-				if err != nil {
-					s.logger.Fatal().
-						Msgf("Unable to remove existing server from raft config. Addr: %q NodeId: %q",
-							s.ServiceConfig.RaftAddr, s.ServiceConfig.RaftNodeID)
-				}
-			}
-		}
-
-		// now we are clear to add this new raft server to the mix!
-		addFuture := s.raft.AddVoter(
-			raft.ServerID(s.ServiceConfig.RaftNodeID),
-			raft.ServerAddress(s.ServiceConfig.RaftAddr),
-			0, s.ServiceConfig.RaftTimeout,
-		)
-
-		err = addFuture.Error()
-		if err != nil {
-			s.logger.Fatal().Msgf(
-				"Unable to add server to the raft config. Node: %q Addr %q",
-				s.ServiceConfig.RaftNodeID, s.ServiceConfig.RaftAddr)
-		}
-
+		// TODO: calling registering follower next, possibly with exponential backoff
+		s.logger.Info().Msg("registering as follower .... next!")
 	}
 
 }
@@ -202,6 +161,62 @@ func (s *DKVService) Delete(key string) (string, error) {
 
 	delete(s.kvmap, key)
 	return key, nil
+}
+
+func (s *DKVService) RegisterFollower(followerId, followerAddr string) error {
+	if !s.ServiceConfig.RaftLeader {
+		return errors.ErrUnsupported
+	}
+
+	// get raft configs
+	confFuture := s.raft.GetConfiguration()
+	err := confFuture.Error()
+	if err != nil {
+		s.logger.Error().Msgf("Unable to get raft conf as follower: %q", err)
+		return err
+	}
+
+	raftServers := confFuture.Configuration().Servers
+	if len(raftServers) == 0 {
+		s.logger.Fatal().Msg("No servers found. please initalize the leader first!")
+	}
+
+	_, leaderId := s.raft.LeaderWithID()
+	if leaderId == "" {
+		s.logger.Error().Msg("no leader in raft cluster yet")
+		return errors.New("no leader in raft cluster yet")
+	}
+
+	for _, rServer := range raftServers {
+		if rServer.ID == raft.ServerID(followerId) {
+			removeFuture := s.raft.RemoveServer(raft.ServerID(followerId), 0, s.ServiceConfig.RaftTimeout)
+			err := removeFuture.Error()
+			if err != nil {
+				s.logger.Error().
+					Msgf("Unable to remove existing server from raft config. Addr: %q NodeId: %q",
+						s.ServiceConfig.RaftAddr, s.ServiceConfig.RaftNodeID)
+			}
+			return err
+		}
+	}
+
+	// now we are clear to add this new raft server to the mix!
+	addFuture := s.raft.AddVoter(
+		raft.ServerID(s.ServiceConfig.RaftNodeID),
+		raft.ServerAddress(s.ServiceConfig.RaftAddr),
+		0, s.ServiceConfig.RaftTimeout,
+	)
+
+	err = addFuture.Error()
+	if err != nil {
+		s.logger.Error().Msgf(
+			"Unable to add server to the raft config. Node: %s Addr %s",
+			s.ServiceConfig.RaftNodeID, s.ServiceConfig.RaftAddr)
+		return err
+	}
+
+	return nil
+
 }
 
 func (s *DKVService) PrintConfigs() {
