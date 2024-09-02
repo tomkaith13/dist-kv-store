@@ -109,7 +109,7 @@ func (s *DKVService) initRaft() {
 		// wait for leader to get elected. We want this guardrail since followers can get
 		// triggered
 		exponentialBackoffEngine := backoff.NewExponentialBackOff()
-		exponentialBackoffEngine.MaxElapsedTime = 15 * time.Second
+		exponentialBackoffEngine.MaxElapsedTime = s.ServiceConfig.RaftTimeout
 
 		err := backoff.Retry(leaderReadinessChecker, exponentialBackoffEngine)
 		if err != nil {
