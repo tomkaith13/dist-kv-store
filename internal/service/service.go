@@ -37,6 +37,7 @@ type Config struct {
 	RaftStoreDir string        `envconfig:"RAFT_STORE_DIR" required:"true"`
 	RaftTimeout  time.Duration `envconfig:"RAFT_TIMEOUT" default:"20s"`
 
+	Debug        bool
 	RaftLeader   bool   `envconfig:"RAFT_LEADER" required:"true"`
 	RaftJoinAddr string `envconfig:"RAFT_JOIN_ADDR"`
 }
@@ -49,7 +50,9 @@ func New(logger zerolog.Logger, config Config) *DKVService {
 
 	service.kvmap = make(map[string]string)
 	service.PrintConfigs()
-	service.initRaft()
+	if !config.Debug {
+		service.initRaft()
+	}
 	return service
 }
 

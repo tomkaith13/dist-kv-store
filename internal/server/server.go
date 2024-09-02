@@ -30,7 +30,7 @@ type DKVStore interface {
 	Get(key string) (string, error)
 	Set(key string, val string) (string, error)
 	Delete(key string) (string, error)
-	// RegisterFollower(followerId, followerAddr string) error
+	RegisterFollower(followerId, followerAddr string) error
 }
 type Config struct {
 	Address         string        `envconfig:"ADDRESS"`

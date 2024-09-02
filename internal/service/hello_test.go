@@ -32,6 +32,7 @@ func TestHelloHandler(t *testing.T) {
 		RaftAddr:     "localhost:23001",
 		RaftStoreDir: "./test-raft-dir",
 		RaftLeader:   true,
+		Debug:        true,
 	}
 	zlogger := zerolog.New(os.Stderr).
 		Level(zerolog.DebugLevel).
@@ -76,6 +77,7 @@ func TestHelloLongHandler(t *testing.T) {
 		RaftAddr:     "localhost:24001",
 		RaftStoreDir: "./test-raft-dir",
 		RaftLeader:   true,
+		Debug:        true,
 	}
 	zlogger := zerolog.New(os.Stderr).
 		Level(zerolog.DebugLevel).
