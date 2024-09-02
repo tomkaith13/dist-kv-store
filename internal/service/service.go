@@ -1,9 +1,13 @@
 package service
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -83,6 +87,12 @@ func (s *DKVService) initRaft() {
 		s.logger.Fatal().Msg("Unable to instantiate a raft FSM")
 	}
 
+	// We use exponential backoff - default configs save for MaxElapsedTime to
+	// wait for leader to get elected. We want this guardrail since followers can get
+	// triggered
+	exponentialBackoffEngine := backoff.NewExponentialBackOff()
+	exponentialBackoffEngine.MaxElapsedTime = s.ServiceConfig.RaftTimeout
+
 	if s.ServiceConfig.RaftLeader {
 		raftConfig := raft.Configuration{
 			Servers: []raft.Server{
@@ -109,12 +119,6 @@ func (s *DKVService) initRaft() {
 			return nil
 		}
 
-		// We use exponential backoff - default configs save for MaxElapsedTime to
-		// wait for leader to get elected. We want this guardrail since followers can get
-		// triggered
-		exponentialBackoffEngine := backoff.NewExponentialBackOff()
-		exponentialBackoffEngine.MaxElapsedTime = s.ServiceConfig.RaftTimeout
-
 		err := backoff.Retry(leaderReadinessChecker, exponentialBackoffEngine)
 		if err != nil {
 			s.logger.Fatal().Msg("Leader not promoted yet!")
@@ -122,7 +126,36 @@ func (s *DKVService) initRaft() {
 
 	} else {
 		// TODO: calling registering follower next, possibly with exponential backoff
-		s.logger.Info().Msg("registering as follower .... next!")
+		s.logger.Info().Msg("registering as follower ....")
+		followerBody := RegisterFollowerRequest{
+			FollowerId:   s.ServiceConfig.RaftNodeID,
+			FollowerAddr: s.ServiceConfig.RaftAddr,
+		}
+		b, err := json.Marshal(followerBody)
+		if err != nil {
+			s.logger.Error().Msgf("Unable to unmarshal follower request. Error: %s", err)
+		}
+
+		leaderURL := fmt.Sprintf("http://%s/register-follower", s.ServiceConfig.RaftJoinAddr)
+		tryJoin := func() error {
+			resp, err := http.Post(leaderURL, "application/json", bytes.NewReader(b))
+			if err != nil {
+				s.logger.Error().Msgf("Unable to call register-follower. Got error: %s", err)
+				return err
+			}
+
+			if resp.StatusCode != http.StatusOK {
+				return errors.New("POST /register-follower failed... trying again")
+			}
+			defer resp.Body.Close()
+			return nil
+		}
+		err = backoff.Retry(tryJoin, exponentialBackoffEngine)
+		if err != nil {
+			s.logger.Fatal().Msg("Unable to send register-follower to leader")
+		}
+		s.logger.Info().Msg("done calling register-follower on the leader")
+		s.logger.Info().Msg("registration complete!!!")
 	}
 
 }
@@ -164,10 +197,6 @@ func (s *DKVService) Delete(key string) (string, error) {
 }
 
 func (s *DKVService) RegisterFollower(followerId, followerAddr string) error {
-	if !s.ServiceConfig.RaftLeader {
-		return errors.ErrUnsupported
-	}
-
 	// get raft configs
 	confFuture := s.raft.GetConfiguration()
 	err := confFuture.Error()
@@ -202,8 +231,8 @@ func (s *DKVService) RegisterFollower(followerId, followerAddr string) error {
 
 	// now we are clear to add this new raft server to the mix!
 	addFuture := s.raft.AddVoter(
-		raft.ServerID(s.ServiceConfig.RaftNodeID),
-		raft.ServerAddress(s.ServiceConfig.RaftAddr),
+		raft.ServerID(followerId),
+		raft.ServerAddress(followerAddr),
 		0, s.ServiceConfig.RaftTimeout,
 	)
 
@@ -214,7 +243,7 @@ func (s *DKVService) RegisterFollower(followerId, followerAddr string) error {
 			s.ServiceConfig.RaftNodeID, s.ServiceConfig.RaftAddr)
 		return err
 	}
-
+	s.logger.Info().Msgf("Follower registered. FollowerID: %s FollowerAddr: %s", followerId, followerAddr)
 	return nil
 
 }

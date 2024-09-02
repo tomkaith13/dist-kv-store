@@ -39,6 +39,9 @@ func main() {
 	httpServer.AddHandler(server.POST, "/key", service.SetHandler)
 	httpServer.AddHandler(server.DELETE, "/key/{id}", service.DelHandler)
 
+	// handler for followers to register via the leader
+	httpServer.AddHandler(server.POST, "/register-follower", service.RegisterFollowerHandler)
+
 	httpServer.Run()
 
 }
