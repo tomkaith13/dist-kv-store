@@ -49,6 +49,7 @@ func New(logger zerolog.Logger, router *chi.Mux, config Config, store DKVStore) 
 
 func (s *Server) AddHandler(method string, route string, handlerFunc func(s *Server, w http.ResponseWriter, r *http.Request)) {
 	s.logger.Info().Msgf("Registering Method: %s Route: %s", method, route)
+
 	wrappedHandler := func(w http.ResponseWriter, r *http.Request) {
 		handlerFunc(s, w, r)
 	}
@@ -60,14 +61,10 @@ func (s *Server) AddHandler(method string, route string, handlerFunc func(s *Ser
 	case DELETE:
 		s.router.Delete(route, wrappedHandler)
 	default:
-		// lets keep default also as a GET registration
-		s.router.Get(route, wrappedHandler)
+		s.logger.Fatal().Msg("Any other methods than GET, POST and DELETE are not allowed")
+		return
 	}
 }
-
-// func (s *Server) ServeHTTP(w http.ResponseWriter r *http.Request) {
-
-// }
 
 func (s *Server) PrintConfigs() {
 	s.logger.Info().Msg("--- Server Config ---")
