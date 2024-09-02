@@ -44,7 +44,7 @@ func New(logger zerolog.Logger, config Config) *DKVService {
 
 	service.kvmap = make(map[string]string)
 	service.PrintConfigs()
-	// service.initRaft()
+	service.initRaft()
 	return service
 }
 
@@ -91,6 +91,17 @@ func (s *DKVService) initRaft() {
 		if bootStrapFut.Error() != nil {
 			s.logger.Fatal().Msg("Unable to bootstrap raft cluster with leader")
 		}
+		// leaderReadinessChecker := func() error {
+
+		// 	lAddr, lID := s.raft.LeaderWithID()
+		// 	if lAddr == "" || lID == "" {
+		// 		s.logger.Info().Msg("Raft Leader election in progress...")
+		// 		return errors.New("Leader not ready!")
+		// 	}
+		// 	s.logger.Info().Msg("Leader ready!!")
+		// 	return nil
+		// }
+
 	} else {
 		// validate if we have a joinaddr
 		if s.ServiceConfig.RaftJoinAddr == "" {
