@@ -254,18 +254,21 @@ func (s *DKVService) RegisterFollower(followerId, followerAddr string) error {
 	}
 
 	for _, rServer := range raftServers {
-		if rServer.ID == raft.ServerID(followerId) {
-			removeFuture := s.raft.RemoveServer(raft.ServerID(followerId), 0, s.ServiceConfig.RaftTimeout)
-			err := removeFuture.Error()
-			if err != nil {
-				s.logger.Error().
-					Msgf("Unable to remove existing server from raft config. Addr: %q NodeId: %q",
-						s.ServiceConfig.RaftAddr, s.ServiceConfig.RaftNodeID)
-			}
-			return err
+		if rServer.ID == raft.ServerID(followerId) && rServer.Address == raft.ServerAddress(followerAddr) {
+			// removeFuture := s.raft.RemoveServer(raft.ServerID(followerId), 0, s.ServiceConfig.RaftTimeout)
+			// err := removeFuture.Error()
+			// if err != nil {
+			// 	s.logger.Error().
+			// 		Msgf("Unable to remove existing server from raft config. Addr: %q NodeId: %q",
+			// 			s.ServiceConfig.RaftAddr, s.ServiceConfig.RaftNodeID)
+			// }
+			// return err
+			s.logger.Info().Msgf("NodeID %s already present in raft config... no need to re-register.", followerId)
+			return nil
 		}
 	}
 
+	// If not present in config
 	// now we are clear to add this new raft server to the mix!
 	addFuture := s.raft.AddVoter(
 		raft.ServerID(followerId),
