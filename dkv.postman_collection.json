@@ -1,0 +1,830 @@
+{
+	"info": {
+		"_postman_id": "a20bade6-5275-405f-8f36-68d5ef71ab97",
+		"name": "dkv",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3210016"
+	},
+	"item": [
+		{
+			"name": "hello",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8888/hello",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"hello"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "key - node1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8888/key/alpha",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"key",
+						"alpha"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "long key",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/key/asdsdfasdfasdfasdfasdfasdfasdfsadfasdfasdfasdfsdfasdfasfqwertfgsdfgjhajsdfhusdfgh asygdfuib fuiyfuiysofhasdfjhgasdf",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"key",
+								"asdsdfasdfasdfasdfasdfasdfasdfsadfasdfasdfasdfsdfasdfasfqwertfgsdfgjhajsdfhusdfgh asygdfuib fuiyfuiysofhasdfjhgasdf"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 01 Sep 2024 16:12:03 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "18"
+						}
+					],
+					"cookie": [],
+					"body": "key size exceeded\n"
+				},
+				{
+					"name": "a",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/key/alpha",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"key",
+								"alpha"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Sun, 01 Sep 2024 16:32:42 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "17"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{ \"asd\" : \"def\" }"
+				},
+				{
+					"name": "c",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/key/charlie",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"key",
+								"charlie"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 00:59:18 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "14"
+						}
+					],
+					"cookie": [],
+					"body": "key not found\n"
+				},
+				{
+					"name": "e",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/key/echo",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"key",
+								"echo"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 00:58:44 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "22"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{ \"echo\" : \"foxtrot\" }"
+				}
+			]
+		},
+		{
+			"name": "key - node2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8889/key/alpha",
+					"host": [
+						"localhost"
+					],
+					"port": "8889",
+					"path": [
+						"key",
+						"alpha"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "a",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8889/key/alpha",
+							"host": [
+								"localhost"
+							],
+							"port": "8889",
+							"path": [
+								"key",
+								"alpha"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 01:00:18 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "20"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{ \"alpha\" : \"beta\" }"
+				},
+				{
+					"name": "c",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8889/key/charlie",
+							"host": [
+								"localhost"
+							],
+							"port": "8889",
+							"path": [
+								"key",
+								"charlie"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 01:00:34 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "14"
+						}
+					],
+					"cookie": [],
+					"body": "key not found\n"
+				},
+				{
+					"name": "e",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8889/key/echo",
+							"host": [
+								"localhost"
+							],
+							"port": "8889",
+							"path": [
+								"key",
+								"echo"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 01:01:53 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "22"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{ \"echo\" : \"foxtrot\" }"
+				}
+			]
+		},
+		{
+			"name": "key - node3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8890/key/alpha",
+					"host": [
+						"localhost"
+					],
+					"port": "8890",
+					"path": [
+						"key",
+						"alpha"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "a",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8890/key/alpha",
+							"host": [
+								"localhost"
+							],
+							"port": "8890",
+							"path": [
+								"key",
+								"alpha"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Sun, 01 Sep 2024 16:32:42 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "17"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{ \"asd\" : \"def\" }"
+				},
+				{
+					"name": "c",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8890/key/charlie",
+							"host": [
+								"localhost"
+							],
+							"port": "8890",
+							"path": [
+								"key",
+								"charlie"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Sun, 01 Sep 2024 16:32:42 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "17"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{ \"asd\" : \"def\" }"
+				},
+				{
+					"name": "e",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8890/key/echo",
+							"host": [
+								"localhost"
+							],
+							"port": "8890",
+							"path": [
+								"key",
+								"echo"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 00:50:35 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "22"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{ \"echo\" : \"foxtrot\" }"
+				},
+				{
+					"name": "g",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8890/key/gamma",
+							"host": [
+								"localhost"
+							],
+							"port": "8890",
+							"path": [
+								"key",
+								"gamma"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 01:06:07 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "20"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{ \"gamma\" : \"halo\" }"
+				}
+			]
+		},
+		{
+			"name": "del key - node1",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:8888/key/alpha",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"key",
+						"alpha"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "a",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8888/key/alpha",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"key",
+								"alpha"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 00:52:22 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "24"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "key deleted successfully"
+				}
+			]
+		},
+		{
+			"name": "key set  node1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\": \"alpha\",\n    \"value\": \"bravo\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8888/key",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"key"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "a:b",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"alpha\",\n    \"value\": \"beta\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/key",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"key"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 00:43:58 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "19"
+						}
+					],
+					"cookie": [],
+					"body": "key already exists\n"
+				},
+				{
+					"name": "c:d",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"charlie\",\n    \"value\": \"delta\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/key",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"key"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 00:45:18 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "24"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "key created successfully"
+				},
+				{
+					"name": "e:f",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"echo\",\n    \"value\": \"foxtrot\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/key",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"key"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 00:45:42 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "24"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "key created successfully"
+				},
+				{
+					"name": "g:h",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"gamma\",\n    \"value\": \"halo\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8888/key",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"key"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 03 Sep 2024 01:05:25 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "24"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "key created successfully"
+				}
+			]
+		},
+		{
+			"name": "key set node2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\": \"charlie\",\n    \"value\": \"delta\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8889/key",
+					"host": [
+						"localhost"
+					],
+					"port": "8889",
+					"path": [
+						"key"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "key set node3",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\": \"gamma\",\n    \"value\": \"halo\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8890/key",
+					"host": [
+						"localhost"
+					],
+					"port": "8890",
+					"path": [
+						"key"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
