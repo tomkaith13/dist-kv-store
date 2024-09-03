@@ -6,7 +6,7 @@ to achieve data replication in a strongly consistent fashion as long as there is
 
 Suppose there are $n$ nodes in this cluster that maintain the kv store, we define a **quorum is established** if the following is true:
 
-$(n/2) + 1\;nodes\,are\,available$
+$(n/2) + 1\ nodes\ are\ available$
 
 As long as the quorum stays at this level, the cluster can be consider available and fault-tolerant.
 
