@@ -62,4 +62,5 @@ func SetHandler(s *server.Server, w http.ResponseWriter, r *http.Request) {
 	response := "key created successfully"
 	w.Write([]byte(response))
 	w.WriteHeader(http.StatusCreated)
+	return
 }
