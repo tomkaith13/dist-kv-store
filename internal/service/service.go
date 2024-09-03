@@ -78,7 +78,7 @@ func (s *DKVService) initRaft() {
 		return
 	}
 
-	snapshots, err := raft.NewFileSnapshotStore(s.ServiceConfig.RaftStoreDir, 1, s.logger)
+	snapshots, err := raft.NewFileSnapshotStore(s.ServiceConfig.RaftStoreDir, 2, s.logger)
 	if err != nil {
 		s.logger.Fatal().Msgf("Error creating a snapshot store for raft. Err: %q", err)
 		return
@@ -186,16 +186,13 @@ func (s *DKVService) Set(key, val string) (string, error) {
 		return "", errors.New("set can be done only on leader node")
 	}
 
+	if _, ok := s.kvmap[key]; ok {
+		return "", errors.New("key already exists")
+	}
 	if s.ServiceConfig.Debug {
-		if _, ok := s.kvmap[key]; ok {
-			return "", errors.New("key already exists")
-		}
 
 		s.kvmap[key] = val
 		return val, nil
-	}
-	if _, ok := s.kvmap[key]; ok {
-		return "", errors.New("key already exists")
 	}
 
 	cmdStr := fmt.Sprintf("command:SET,key:%s,val:%s", key, val)
@@ -216,15 +213,15 @@ func (s *DKVService) Delete(key string) (string, error) {
 		s.logger.Error().Msg("set can be done only on leader node")
 		return "", errors.New("set can be done only on leader node")
 	}
+	if _, ok := s.kvmap[key]; !ok {
+		return "", errors.New("key not found")
+	}
 
 	if s.ServiceConfig.Debug {
-		if _, ok := s.kvmap[key]; !ok {
-			return "", errors.New("key not found")
-		}
-
 		delete(s.kvmap, key)
 		return key, nil
 	}
+
 	cmdStr := fmt.Sprintf("command:DEL,key:%s", key)
 	applyFut := s.raft.Apply([]byte(cmdStr), s.ServiceConfig.RaftTimeout)
 	err := applyFut.Error()
@@ -337,6 +334,7 @@ func (s *DKVService) Restore(snapshot io.ReadCloser) error {
 		s.logger.Error().Msg("Unable to restore map from snapshot")
 		return err
 	}
+	s.kvmap = reconstructedKVMap
 
 	return nil
 }
