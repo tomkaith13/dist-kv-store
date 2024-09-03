@@ -185,6 +185,11 @@ func (s *DKVService) Get(key string) (string, error) {
 func (s *DKVService) Set(key, val string) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	// In debug mode, we shortcuit early
+	if s.ServiceConfig.Debug {
+		s.kvmap[key] = val
+		return val, nil
+	}
 
 	leaderAddr, leaderId := s.raft.LeaderWithID()
 	if leaderAddr == "" || leaderId == "" {
@@ -202,11 +207,6 @@ func (s *DKVService) Set(key, val string) (string, error) {
 	if _, ok := s.kvmap[key]; ok {
 		return "", errors.New("key already exists")
 	}
-	if s.ServiceConfig.Debug {
-
-		s.kvmap[key] = val
-		return val, nil
-	}
 
 	cmdStr := fmt.Sprintf("command:SET,key:%s,val:%s", key, val)
 	applyFut := s.raft.Apply([]byte(cmdStr), s.ServiceConfig.RaftTimeout)
@@ -222,6 +222,15 @@ func (s *DKVService) Delete(key string) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	// In debug mode, we shortcircuit early
+	if s.ServiceConfig.Debug {
+		if _, ok := s.kvmap[key]; !ok {
+			return "", errors.New("key not found")
+		}
+		delete(s.kvmap, key)
+		return key, nil
+	}
+
 	leaderAddr, leaderId := s.raft.LeaderWithID()
 	if leaderAddr == "" || leaderId == "" {
 		s.logger.Error().Msg("Leader not ready yet!! please try later")
@@ -236,11 +245,6 @@ func (s *DKVService) Delete(key string) (string, error) {
 	}
 	if _, ok := s.kvmap[key]; !ok {
 		return "", errors.New("key not found")
-	}
-
-	if s.ServiceConfig.Debug {
-		delete(s.kvmap, key)
-		return key, nil
 	}
 
 	cmdStr := fmt.Sprintf("command:DEL,key:%s", key)

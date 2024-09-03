@@ -1,7 +1,7 @@
 # Distributed Key-Value Store with Raft
 
 ## Problem
-Create a key-value store that runs across a cluster. The data is replicated using [Raft(https://raft.github.io/)]
+Create a key-value store that runs across a cluster. The data is replicated using [Raft](https://raft.github.io/)
 to achieve data replication in a strongly consistent fashion as long as there is quorum established.
 
 Suppose there are $n$ nodes in this cluster that maintain the kv store, we define a **quorum is established** if the following is true:
@@ -14,7 +14,8 @@ Nodes can be removed and added back to the cluster and would be eventually consi
 
 ## How to run this code
 This repo uses `.env*` files to initialize the cluster nodes.
-So to run a cluster, the following steps need to be taken:
+So to run a cluster, the following steps need to be done:
+- Install [Go v1.23](https://go.dev/doc/install)
 - Run `make run-test` to verify if your repo works locally.
 - Copy and edit the 3 env files (`.env1`, `.env2` and `.env3`) to create 3 separate initialization configurations
 - ***Optional***: You can create more `.env` files if you want to add more nodes to the cluster and edit the `Makefile` to add more rules. The current `Makefile` only has rules for 3 nodes.
