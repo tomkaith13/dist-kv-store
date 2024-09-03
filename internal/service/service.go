@@ -53,7 +53,7 @@ func New(logger zerolog.Logger, config Config) *DKVService {
 	service.kvmap = make(map[string]string)
 	service.PrintConfigs()
 	if !config.Debug {
-		service.initRaft()
+		service.initializeRaftCluster()
 	}
 	return service
 }
@@ -62,7 +62,7 @@ var (
 	LeaderNotReady error = errors.New("Leader not ready yet!! please try later")
 )
 
-func (s *DKVService) initRaft() {
+func (s *DKVService) initializeRaftCluster() {
 	// create store dir
 	if err := os.MkdirAll(s.ServiceConfig.RaftStoreDir, 0700); err != nil {
 		s.logger.Fatal().Msg("Unable to create local raft store directory")
