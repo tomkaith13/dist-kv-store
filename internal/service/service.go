@@ -58,6 +58,10 @@ func New(logger zerolog.Logger, config Config) *DKVService {
 	return service
 }
 
+var (
+	LeaderNotReady error = errors.New("Leader not ready yet!! please try later")
+)
+
 func (s *DKVService) initRaft() {
 	// create store dir
 	if err := os.MkdirAll(s.ServiceConfig.RaftStoreDir, 0700); err != nil {
@@ -182,9 +186,17 @@ func (s *DKVService) Set(key, val string) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	leaderAddr, leaderId := s.raft.LeaderWithID()
+	if leaderAddr == "" || leaderId == "" {
+		s.logger.Error().Msg("Leader not ready yet!! please try later")
+		return "", LeaderNotReady
+	}
+	errStr := fmt.Sprintf("set can be done only on leader node. The leader addr is: %s the nodeid is: %s",
+		leaderAddr, leaderId)
+
 	if s.raft.State() != raft.Leader {
-		s.logger.Error().Msg("set can be done only on leader node")
-		return "", errors.New("set can be done only on leader node")
+		s.logger.Error().Msg(errStr)
+		return "", errors.New(errStr)
 	}
 
 	if _, ok := s.kvmap[key]; ok {
@@ -210,9 +222,17 @@ func (s *DKVService) Delete(key string) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	leaderAddr, leaderId := s.raft.LeaderWithID()
+	if leaderAddr == "" || leaderId == "" {
+		s.logger.Error().Msg("Leader not ready yet!! please try later")
+		return "", LeaderNotReady
+	}
+	errStr := fmt.Sprintf("set can be done only on leader node. The leader addr is: %s the nodeid is: %s",
+		leaderAddr, leaderId)
+
 	if s.raft.State() != raft.Leader {
-		s.logger.Error().Msg("set can be done only on leader node")
-		return "", errors.New("set can be done only on leader node")
+		s.logger.Error().Msg(errStr)
+		return "", errors.New(errStr)
 	}
 	if _, ok := s.kvmap[key]; !ok {
 		return "", errors.New("key not found")

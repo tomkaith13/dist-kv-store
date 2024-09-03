@@ -52,6 +52,9 @@ func SetHandler(s *server.Server, w http.ResponseWriter, r *http.Request) {
 
 	_, err = dkvService.Set(reqBody.Key, reqBody.Val)
 	if err != nil {
+		if errors.Is(err, LeaderNotReady) {
+			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		}
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}

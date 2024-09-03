@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -22,6 +23,9 @@ func DelHandler(s *server.Server, w http.ResponseWriter, r *http.Request) {
 
 	_, err := dkvService.Delete(key)
 	if err != nil {
+		if errors.Is(err, LeaderNotReady) {
+			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		}
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
