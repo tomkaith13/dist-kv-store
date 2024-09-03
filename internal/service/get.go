@@ -18,7 +18,7 @@ func GetHandler(s *server.Server, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dkvService.logger.Info().Msgf("using service configs: %+v", dkvService.ServiceConfig)
+	dkvService.logger.Info().Msgf("using store raft.Stats: %+v", dkvService.raft.Stats())
 
 	key := chi.URLParam(r, "id")
 

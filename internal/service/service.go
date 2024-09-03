@@ -163,6 +163,7 @@ func (s *DKVService) initRaft() {
 		s.logger.Info().Msg("registration complete!!!")
 	}
 	s.logger.Info().Msgf("Raft Node State: %+v", s.raft.State())
+	s.logger.Info().Msgf("raft stats: %+v", s.raft.Stats())
 
 }
 
