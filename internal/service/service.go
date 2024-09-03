@@ -6,9 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -160,6 +162,7 @@ func (s *DKVService) initRaft() {
 		s.logger.Info().Msg("done calling register-follower on the leader")
 		s.logger.Info().Msg("registration complete!!!")
 	}
+	s.logger.Info().Msgf("Raft Node State: %+v", s.raft.State())
 
 }
 
@@ -178,11 +181,29 @@ func (s *DKVService) Set(key, val string) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	if s.raft.State() != raft.Leader {
+		s.logger.Error().Msg("set can be done only on leader node")
+		return "", errors.New("set can be done only on leader node")
+	}
+
+	if s.ServiceConfig.Debug {
+		if _, ok := s.kvmap[key]; ok {
+			return "", errors.New("key already exists")
+		}
+
+		s.kvmap[key] = val
+		return val, nil
+	}
 	if _, ok := s.kvmap[key]; ok {
 		return "", errors.New("key already exists")
 	}
 
-	s.kvmap[key] = val
+	cmdStr := fmt.Sprintf("command:SET,key:%s,val:%s", key, val)
+	applyFut := s.raft.Apply([]byte(cmdStr), s.ServiceConfig.RaftTimeout)
+	err := applyFut.Error()
+	if err != nil {
+		return "", err
+	}
 	return val, nil
 
 }
@@ -191,12 +212,27 @@ func (s *DKVService) Delete(key string) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if _, ok := s.kvmap[key]; !ok {
-		return "", errors.New("key not found")
+	if s.raft.State() != raft.Leader {
+		s.logger.Error().Msg("set can be done only on leader node")
+		return "", errors.New("set can be done only on leader node")
 	}
 
-	delete(s.kvmap, key)
+	if s.ServiceConfig.Debug {
+		if _, ok := s.kvmap[key]; !ok {
+			return "", errors.New("key not found")
+		}
+
+		delete(s.kvmap, key)
+		return key, nil
+	}
+	cmdStr := fmt.Sprintf("command:DEL,key:%s", key)
+	applyFut := s.raft.Apply([]byte(cmdStr), s.ServiceConfig.RaftTimeout)
+	err := applyFut.Error()
+	if err != nil {
+		return "", err
+	}
 	return key, nil
+
 }
 
 func (s *DKVService) RegisterFollower(followerId, followerAddr string) error {
@@ -260,13 +296,97 @@ func (s *DKVService) PrintConfigs() {
 
 // FSM interface funcs
 func (s *DKVService) Apply(log *raft.Log) any {
+	cmd := string(log.Data)
+	segments := ExtractCmdSegments(cmd)
+	cmdLabel := ExtractCommand(segments[0])
+	key := ExtractKey(segments[1])
+
+	// Del does not have val
+	var val string
+	if len(segments) == 3 {
+		val = ExtractVal(segments[2])
+	}
+
+	switch cmdLabel {
+	case "SET":
+		s.kvmap[key] = val
+	case "DEL":
+		delete(s.kvmap, key)
+	default:
+		s.logger.Error().Msg("Unknown command label. Only SET and DEL are supported")
+		return errors.New("unknown command label. Apply failed")
+	}
+
 	return nil
 }
 
 func (s *DKVService) Snapshot() (raft.FSMSnapshot, error) {
-	return &raft.MockSnapshot{}, nil
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	clonedMap := maps.Clone(s.kvmap)
+
+	return &snapshot{kvmap: clonedMap}, nil
 
 }
 func (s *DKVService) Restore(snapshot io.ReadCloser) error {
+	reconstructedKVMap := make(map[string]string)
+	decoder := json.NewDecoder(snapshot)
+
+	if err := decoder.Decode(&reconstructedKVMap); err != nil {
+		s.logger.Error().Msg("Unable to restore map from snapshot")
+		return err
+	}
+
 	return nil
 }
+
+func ExtractCmdSegments(cmd string) []string {
+	segments := strings.Split(cmd, ",")
+	return segments
+}
+
+func ExtractCommand(cmdSegment string) string {
+	segments := strings.Split(cmdSegment, ":")
+	return segments[1]
+}
+
+func ExtractKey(cmdSegment string) string {
+	segments := strings.Split(cmdSegment, ":")
+	return segments[1]
+}
+
+func ExtractVal(cmdSegment string) string {
+	segments := strings.Split(cmdSegment, ":")
+	return segments[1]
+}
+
+type snapshot struct {
+	kvmap map[string]string
+}
+
+func (snap *snapshot) Persist(sink raft.SnapshotSink) error {
+
+	// Encode data.
+	b, err := json.Marshal(snap.kvmap)
+	if err != nil {
+		return err
+	}
+
+	// Write data to sink.
+	if _, err := sink.Write(b); err != nil {
+		return err
+	}
+
+	// Close the sink.
+	err = sink.Close()
+
+	if err != nil {
+		sink.Cancel()
+		return err
+	}
+
+	return nil
+}
+
+func (snap *snapshot) Release() {}
