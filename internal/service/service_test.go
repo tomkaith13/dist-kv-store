@@ -4,12 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
@@ -67,8 +64,8 @@ func TestABasicSetAndGet(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	httpLeaderServer.GetRouter().ServeHTTP(rr, req)
-	if rr.Code != http.StatusOK {
-		t.Fatalf("SET key failed. Expected: %d, got: %d", http.StatusOK, rr.Code)
+	if rr.Code != http.StatusCreated {
+		t.Fatalf("SET key failed. Expected: %d, got: %d", http.StatusCreated, rr.Code)
 	}
 
 	reqUrl := fmt.Sprintf("http://%s/key/a", sLeaderConfig.Address)
@@ -139,8 +136,8 @@ func TestRaftWithOneNodesSetAndGet(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	httpLeaderServer.GetRouter().ServeHTTP(rr, req)
-	if rr.Code != http.StatusOK {
-		t.Fatalf("SET key failed. Expected: %d, got: %d", http.StatusOK, rr.Code)
+	if rr.Code != http.StatusCreated {
+		t.Fatalf("SET key failed. Expected: %d, got: %d", http.StatusCreated, rr.Code)
 	}
 
 	reqUrl := fmt.Sprintf("http://%s/key/a", sLeaderConfig.Address)
@@ -161,61 +158,82 @@ func TestRaftWithOneNodesSetAndGet(t *testing.T) {
 	}
 }
 
-func BenchmarkNoRaftWithOneNodesSetAndGet(b *testing.B) {
+// func BenchmarkNoRaftWithOneNodesSetAndGet(b *testing.B) {
+// 	// Save the current log output
+// 	originalLogOutput := log.Writer()
 
-	log.SetOutput(io.Discard)
-	config := router.Config{
-		RequestTimeout: 60 * time.Second,
-	}
+// 	// Redirect logs to ioutil.Discard to suppress them
+// 	log.SetOutput(ioutil.Discard)
 
-	sLeaderConfig := server.Config{
-		Address:         "localhost:9999",
-		ShutdownTimeout: time.Second * 5,
-	}
-	serviceLeaderConfig := Config{
-		KeyMaxLen:    100,
-		ValMaxLen:    200,
-		MaxMapSize:   1000,
-		RaftNodeID:   "1",
-		RaftAddr:     "localhost:23001",
-		RaftStoreDir: "./test-raft-dir",
-		RaftLeader:   true,
-		Debug:        true,
-	}
-	zlogger := zerolog.New(os.Stderr).
-		Level(zerolog.DebugLevel).
-		With().
-		Timestamp().
-		Logger()
-	router := router.New(config, zlogger)
-	kv_service := New(zlogger, serviceLeaderConfig)
-	httpLeaderServer := server.New(zlogger, router.GetRouter(), sLeaderConfig, kv_service)
+// 	// Redirect stdout and stderr to ioutil.Discard
+// 	devNull, _ := os.Open(os.DevNull)
+// 	defer devNull.Close()
+// 	os.Stdout = devNull
+// 	os.Stderr = devNull
 
-	httpLeaderServer.AddHandler(server.GET, "/key/{id}", GetHandler)
-	httpLeaderServer.AddHandler(server.POST, "/key", SetHandler)
+// 	config := router.Config{
+// 		RequestTimeout: 60 * time.Second,
+// 	}
 
-	b.ResetTimer()
+// 	sLeaderConfig := server.Config{
+// 		Address:         "localhost:9999",
+// 		ShutdownTimeout: time.Second * 5,
+// 	}
+// 	serviceLeaderConfig := Config{
+// 		KeyMaxLen:    100,
+// 		ValMaxLen:    200,
+// 		MaxMapSize:   10000,
+// 		RaftNodeID:   "1",
+// 		RaftAddr:     "localhost:23001",
+// 		RaftStoreDir: "./test-raft-dir",
+// 		RaftLeader:   true,
+// 		Debug:        true,
+// 	}
+// 	zlogger := zerolog.New(os.Stderr).
+// 		Level(zerolog.DebugLevel).
+// 		With().
+// 		Timestamp().
+// 		Logger()
+// 	router := router.New(config, zlogger)
+// 	kv_service := New(zlogger, serviceLeaderConfig)
+// 	httpLeaderServer := server.New(zlogger, router.GetRouter(), sLeaderConfig, kv_service)
 
-	for i := 0; i < 10; i++ {
-		body := SetRequestBody{
-			Key: "a" + strconv.Itoa(i),
-			Val: "b" + strconv.Itoa(i),
-		}
+// 	httpLeaderServer.AddHandler(server.GET, "/key/{id}", GetHandler)
+// 	httpLeaderServer.AddHandler(server.POST, "/key", SetHandler)
+// 	httpLeaderServer.Run()
 
-		b, _ := json.Marshal(body)
+// 	time.Sleep(2 * time.Second)
 
-		url := fmt.Sprintf("http://%s/key", sLeaderConfig.Address)
-		req, _ := http.NewRequest("POST", url, bytes.NewBuffer(b))
+// 	b.ResetTimer()
 
-		rr := httptest.NewRecorder()
-		httpLeaderServer.GetRouter().ServeHTTP(rr, req)
+// 	for i := 0; i < serviceLeaderConfig.MaxMapSize-1; i++ {
+// 		body := SetRequestBody{
+// 			Key: "a" + strconv.Itoa(i),
+// 			Val: "b" + strconv.Itoa(i),
+// 		}
 
-		reqUrl := fmt.Sprintf("http://%s/key/a"+strconv.Itoa(i), sLeaderConfig.Address)
-		getReq, _ := http.NewRequest("GET", reqUrl, nil)
+// 		b, _ := json.Marshal(body)
 
-		rr = httptest.NewRecorder()
-		httpLeaderServer.GetRouter().ServeHTTP(rr, getReq)
-	}
-	b.StopTimer()
+// 		url := fmt.Sprintf("http://%s/key", sLeaderConfig.Address)
+// 		// req, _ := http.NewRequest("POST", url, bytes.NewBuffer(b))
 
-}
+// 		http.Post(url, "application/json", bytes.NewBuffer([]byte(b)))
+// 		// if err != nil {
+// 		// 	fmt.Println("Error:", err)
+// 		// 	return
+// 		// }
+
+// 		// rr := httptest.NewRecorder()
+// 		// httpLeaderServer.GetRouter().ServeHTTP(rr, req)
+
+// 		reqUrl := fmt.Sprintf("http://%s/key/a"+strconv.Itoa(i), sLeaderConfig.Address)
+// 		http.Get(reqUrl)
+// 		// getReq, _ := http.NewRequest("GET", reqUrl, nil)
+
+// 		// rr = httptest.NewRecorder()
+// 		// httpLeaderServer.GetRouter().ServeHTTP(rr, getReq)
+// 	}
+// 	b.StopTimer()
+// 	log.SetOutput(originalLogOutput)
+
+// }
