@@ -56,7 +56,12 @@ Adding a node back into the mix, should trigger raft to kick in and re-populate 
 ## Benchmarks
 Without Raft cluster setup and on 100k map size, we get:
 ```bash
-1000000000	         0.0007660 ns/op	       0 B/op	       0 allocs/op
+goos: darwin
+goarch: amd64
+pkg: github.com/tomkaith13/dist-kv-store/internal/service
+cpu: Intel(R) Core(TM) i7-6820HQ CPU @ 2.70GHz
+BenchmarkNoRaftWithOneNodesSetAndGet-8   	       1	4510991898 ns/op	728895336 B/op	 9701978 allocs/op
+PASS
 ```
 
 With Raft cluster setup:
