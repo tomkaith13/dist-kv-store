@@ -25,7 +25,7 @@ So to run a cluster, the following steps need to be done:
 - Call `POST leaderaddr/key` with body to store kv pair
 - Call `GET nodeaddr/key/{key}` to fetch the pair from any node in the cluster
 
-## Configuration
+## Configuration 
 This section explains the configs found in the env files
 
 ```bash
