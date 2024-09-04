@@ -65,7 +65,59 @@ PASS
 ```
 
 With Raft cluster setup:
-Can be done using k6 scripts once the setup is done manually.
+Using k6
+- Install [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) 
+- kick start all nodes in this order:
+  -  `make run1` , `make run2` and finally `make run3`
+- run `k6 run perf.js`
+
+The results are:
+```bash
+➜  dist-key-val git:(main) ✗ k6 run perf.js
+
+          /\      |‾‾| /‾‾/   /‾‾/
+     /\  /  \     |  |/  /   /  /
+    /  \/    \    |     (   /   ‾‾\
+   /          \   |  |\  \ |  (‾)  |
+  / __________ \  |__| \__\ \_____/ .io
+
+     execution: local
+        script: perf.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 40s max duration (incl. graceful stop):
+              * default: 1 looping VUs for 10s (gracefulStop: 30s)
+
+
+     ✓ post status was 201
+     ✓ get status was 200
+
+     checks.........................: 100.00% ✓ 20       ✗ 0
+     data_received..................: 2.8 kB  276 B/s
+     data_sent......................: 2.8 kB  275 B/s
+     dkv_get_key....................: avg=538.69µs min=396µs med=518µs    max=868µs  p(90)=688µs   p(95)=777.99µs
+     dkv_set_key....................: avg=1.27ms   min=664µs med=782.5µs  max=4.22ms p(90)=2.48ms  p(95)=3.35ms
+     http_req_blocked...............: avg=124.4µs  min=3µs   med=5µs      max=2.03ms p(90)=46.6µs  p(95)=450.2µs
+     http_req_connecting............: avg=46.8µs   min=0s    med=0s       max=683µs  p(90)=25.3µs  p(95)=274.5µs
+     http_req_duration..............: avg=908.45µs min=396µs med=686µs    max=4.22ms p(90)=1.15ms  p(95)=2.38ms
+       { expected_response:true }...: avg=908.45µs min=396µs med=686µs    max=4.22ms p(90)=1.15ms  p(95)=2.38ms
+     http_req_failed................: 0.00%   ✓ 0        ✗ 20
+     http_req_receiving.............: avg=77.09µs  min=41µs  med=55µs     max=204µs  p(90)=150.3µs p(95)=172.65µs
+     http_req_sending...............: avg=199.9µs  min=17µs  med=32µs     max=3.08ms p(90)=127µs   p(95)=368.95µs
+     http_req_tls_handshaking.......: avg=0s       min=0s    med=0s       max=0s     p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=631.44µs min=330µs med=601.49µs max=1.86ms p(90)=909.7µs p(95)=1.01ms
+     http_reqs......................: 20      1.992157/s
+     iteration_duration.............: avg=1s       min=1s    med=1s       max=1s     p(90)=1s      p(95)=1s
+     iterations.....................: 10      0.996079/s
+     vus............................: 1       min=1      max=1
+     vus_max........................: 1       min=1      max=1
+
+
+running (10.0s), 0/1 VUs, 10 complete and 0 interrupted iterations
+default ✓ [======================================] 1 VUs  10s
+```
+
+The results can be found in the trends with names `dkv_get_key` and `dkv_set_key`.
 
 ### Improvements
 - As an improvement we could add support for leader forwarding. Say an old leader from a prev term gets a SET /key request. A better UX would be to forward that request over to the new leader. Currently that functionality is absent.
