@@ -253,11 +253,11 @@ func BenchmarkNoRaftWithOneNodesSetAndGet(b *testing.B) {
 		ShutdownTimeout: time.Second * 5,
 	}
 	serviceLeaderConfig := Config{
-		KeyMaxLen:    100,
-		ValMaxLen:    200,
+		KeyMaxLen:    1000000,
+		ValMaxLen:    2000000,
 		MaxMapSize:   100000,
 		RaftNodeID:   "1",
-		RaftAddr:     "localhost:23001",
+		RaftAddr:     "localhost:25001",
 		RaftStoreDir: "./test-raft-dir",
 		RaftLeader:   true,
 		Debug:        true,
