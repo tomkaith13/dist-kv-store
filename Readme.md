@@ -54,6 +54,7 @@ Killing off the `leader` would trigger a *leader-election* and any new `POSTs` w
 Adding a node back into the mix, should trigger raft to kick in and re-populate the internal store.
 
 ## Benchmarks
+### No Raft
 Without Raft cluster setup and on 100k map size, we get:
 ```bash
 goos: darwin
@@ -64,6 +65,7 @@ BenchmarkNoRaftWithOneNodesSetAndGet-8   	       1	4510991898 ns/op	728895336 B/
 PASS
 ```
 
+### With Raft
 With Raft cluster setup:
 Using k6
 - Install [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) 
@@ -118,7 +120,9 @@ default ✓ [======================================] 1 VUs  10s
 ```
 
 The results can be found in the trends with names `dkv_get_key` and `dkv_set_key`.
-
+In a 3 body cluster,
+p95 of GETs are 777us
+p95 of SETs are 3.35ms
 ### Improvements
 - As an improvement we could add support for leader forwarding. Say an old leader from a prev term gets a SET /key request. A better UX would be to forward that request over to the new leader. Currently that functionality is absent.
 -limit the key and val size to ensure the snapshotting process is quick and same goes with restore.
