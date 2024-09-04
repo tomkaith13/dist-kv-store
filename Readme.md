@@ -31,3 +31,18 @@ Feel free to kill any node in the cluster and as long as the **quorum condition*
 Killing off the `leader` would trigger a *leader-election* and any new `POSTs` would need to be done on the new leader. Request forwarding to the new leader is not covered in this example.
 
 Adding a node back into the mix, should trigger raft to kick in and re-populate the internal store.
+
+## Benchmarks
+Without Raft cluster setup, we get:
+```bash
+1000000000	         0.0005673 ns/op	       0 B/op	       0 allocs/op
+```
+
+With Raft cluster setup:
+Can be done using k6 scripts once the setup is done manually.
+
+### Improvements
+-limit the key and val size to ensure the snapshotting process is quick and same goes with restore.
+- Figure out how to setup the cluster and test without using tools like k6
+    - right now, I keep getting connection refused when i try to add a second node in tests.
+
