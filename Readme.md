@@ -54,9 +54,9 @@ Killing off the `leader` would trigger a *leader-election* and any new `POSTs` w
 Adding a node back into the mix, should trigger raft to kick in and re-populate the internal store.
 
 ## Benchmarks
-Without Raft cluster setup, we get:
+Without Raft cluster setup and on 100k map size, we get:
 ```bash
-1000000000	         0.0005673 ns/op	       0 B/op	       0 allocs/op
+1000000000	         0.0007660 ns/op	       0 B/op	       0 allocs/op
 ```
 
 With Raft cluster setup:
