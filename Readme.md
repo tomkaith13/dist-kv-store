@@ -25,6 +25,27 @@ So to run a cluster, the following steps need to be done:
 - Call `POST leaderaddr/key` with body to store kv pair
 - Call `GET nodeaddr/key/{key}` to fetch the pair from any node in the cluster
 
+## Configuration
+This section explains the configs found in the env files
+
+```bash
+# server configs
+SERVER_ADDRESS=localhost:8889 ---> This is the address used to make the GET/POST/DEL with keys
+
+# service kv configs
+SERVICE_KEY_MAX_LEN=100 ---> We limit the size of the keys using this config. If larger, we get a 400
+SERVICE_VAL_MAX_LEN=200 ---> We limit the size of the vals the same way
+SERVICE_MAX_MAP_SIZE=1000 --> This is how we keep track of the upper limit of the size of the map. We get a 400 if this is exceeded as well
+
+# service raft configs
+SERVICE_RAFT_LEADER=false -------------------> this is used to indicate if the node (at setup time) is a leader or follower 
+SERVICE_RAFT_STORE_DIR="./node2" ------------> log store location for raft
+SERVICE_RAFT_ADDR=localhost:21002 -----------> raft addr
+SERVICE_RAFT_NODE_ID=node2-------------------> raft node id
+SERVICE_RAFT_JOIN_ADDR=localhost:8888--------> if this is a follower node, we need to register with the leader and this addr is used
+
+PS: Service also has a `debug` config which is used in tests to run without raft. 
+```
 ## Fault Tolerance
 Feel free to kill any node in the cluster and as long as the **quorum condition** is met, the cluster should still be available.
 
@@ -42,6 +63,7 @@ With Raft cluster setup:
 Can be done using k6 scripts once the setup is done manually.
 
 ### Improvements
+- As an improvement we could add support for leader forwarding. Say an old leader from a prev term gets a SET /key request. A better UX would be to forward that request over to the new leader. Currently that functionality is absent.
 -limit the key and val size to ensure the snapshotting process is quick and same goes with restore.
 - Figure out how to setup the cluster and test without using tools like k6
     - right now, I keep getting connection refused when i try to add a second node in tests.
